@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<!--  
+    AUTHOR:  Steve Kurti
+    PURPOSE:  This is a JavaScript practice starter file for a project to learn more about arrays in JavaScript.  A CSS file is connected which sets up a grid layout for the choice of images from the grid.  Images chosen from the top part of the grid are displayed in the bottom portion of the grid.
+
+    The CSS and HTML are influenced by a great tutorial that can be found here:
+    https://www.freecodecamp.org/news/how-to-create-an-image-gallery-with-css-grid-e0f0fd666a5c/
+
+    This program is setup with a 3x7 grid on the top from which images are chosen based on a criteria.  Images are "moved" to the bottom 3x7 grid as they are "chosen".  In actuality, there is only a single 7x8 grid where the first three rows are the "top grid", the 4th row is the button row, and the 5-7 rows are the "lower grid".  The last row is currently unused.
+
+    Images of people are stored in an "images" directory.  The grid.css file contains the grid format for the above grid definitions.
+
+    Several arrays are used to track the location of chosen images (matchingThings), return positions for images (bottomGalleryMemory), and the locations of unchosen images (nonMatchingThings, unused).
+    
+
+    ASSIGNMENT PARTS:
+
+    To get this file working as you saw it in the video, you will need to do the following (mostly in order):
+
+    1. Create a new global variable array called matchingThings which is has the size, gallerySize (almost identical to the setting of the bottomGalleryMemory array).
+
+    2. Write the initialization functions for matchingThings array and the bottomGalleryMemory arrays.  Set all elements in the matchingThings array to an empty string "", and set all the elements of the bottomGalleryMemory array to -1.
+    
+    3. Write a function that uses an array of the following prompts and selects one at random to display in the <p> tag with the id="pickPrompt".
+        Prompts:
+        "Pick all the people with a blue(ish) background."
+        "Pick all the people with a green(ish) background."
+        "Pick all the people with a brown(ish) background."
+        "Pick all the people with long hair."
+        "Pick all the people with short hair."
+        "Pick all the people with a beard."
+        "Pick all the people standing sideways."
+        "Pick all the people with curly hair."
+        "Pick all the people with straight hair."
+        "Pick all the people wearing a button-up shirt."
+        "Pick all the people with a solid-color shirt."
+        "Pick all the people with a patterned shirt."
+    
+    4. Write a function to pick the best next position for a chosen image to land in the lower grid.  This function is called nextGalleryPosition().  Hint:  use the first empty position element in the bottomGalleryMemory array as the next postion to use.
+    
+    5. Write a function to randomize the 27 possible photos, and select the first 21 of them to be used in the top grid (CSS gallery__item--1 through gallery__item--21).  This function is called randomizeImages() and is used in the insertImages() function (note the parts commented out that can be uncommented once the function is written).
+
+-->
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+        <link href="https://fonts.googleapis.com/css?family=Josefin+Sans:300,400,400i|Nunito:300,300i" rel="stylesheet">
+        <link rel="stylesheet" href="grid.css">
+        <link rel="shortcut icon" type="image/png" href="img/favicon.png">
+
+        <title>People Picker</title>
+
+    </head>
+    <body>
+        <div class="container">
+            <h1>People Picker</h1>
+            <p></p>
+            <p id="pickPrompt">Pick all the people with a blue(ish) background.</p>
+            <p style="font-size: 20px; text-align: left;">Click on an image above to select it and send it to the matching set below.  When you have found all the images, click the big green check mark.  If no images match, click the big red X.</p>
+            <p></p>
+            <div id="galleryContainer" class="gallery">
+            </div>
+        </div>
+        <script type="text/javascript">
+
+            const gallerySize = 21; // set size of the gallery
+            const totalImages = 27; // set the number of images in the directory
+            var bottomGalleryMemory = new Array(gallerySize);   // array to hold return locations of items sent to the bottom (ie matching items)
+            var matchingThings = new Array(gallerySize);
+
+            initBGM(-1);    // initialize all elements in the bottomGalleryMemory to -1
+            initMT("");     // initialize all elements in the matchingThings to ""
+
+            // run this function to create the figure and image tags.
+            insertImages();
+
+            // run this function to randomize the search prompt at the top.
+            setPrompt();
+
+            // This function initializes all elements in the matchingThings array to initValue
+            // It also has a feature that if initValue is "undefined", it is set to "".
+            function initMT(initValue){
+               matchingThings.fill(initValue || "");
+            }
+
+            // This function initializes all elements in the matchingThings array to initValue
+            // It also has a feature that if initValue is "undefined", it is set to -1.
+            function initBGM(initValue){
+                bottomGalleryMemory.fill(initValue || -1);
+            }
+
+            // This function generates the figure and image tags to be inserted into the grid.
+            // This also makes it much easier to randomize the images.
+            // It also sets each lower grid item to an all white image (btnWhite.jpg).
+            // Each figure/img has the onclick set, the class set, the id set, and the src set.
+            // All this is collected and concatenated with the buttonHTML() output.
+            // Then everything is written to the galleryContainer div tag.
+            function insertImages(){
+                var galleryTop = "";
+                var iNums = new Array(totalImages);
+                
+                // The following can be used once the randomizeImages() function is written.
+                iNums = randomizeImages(totalImages);    // remember iNums is zero-base
+                
+                // set the upper gallery grid elements (images)
+                for(var n = 1; n < gallerySize + 1; n++){
+                //    galleryTop += '<figure onclick="selectImage(' + n + ')" class="gallery__item gallery__item--' + n + '">\n<img id="galleryImg' + n + '" src="./images/img' + n + '.jpg" class="gallery__img">\n</figure>\n';
+
+                    // The following can be used once the randomizeImages() function works.  Simply replace the above assignment to galleryTop with the assignment below.
+
+                     galleryTop += '<figure onclick="selectImage(' + n + ')" class="gallery__item gallery__item--' + n + '">\n<img id="galleryImg' + n + '" src="./images/img' + iNums[n - 1] + '.jpg" class="gallery__img">\n</figure>\n';
+                }
+
+                // set the lower (bottom) gallery grid elements (images = all btnWhite.jpg)
+                var galleryBottom = "";
+                for(n = gallerySize + 1; n < (gallerySize * 2) + 1; n++){
+                    galleryBottom += '<figure onClick="returnImage(' + n + ')" class="gallery__item gallery__item--' + n + '">\n<img id="galleryImg' + n + '" src="./images/btnWhite.jpg" class="gallery__img">\n</figure>\n';
+                }
+                document.getElementById("galleryContainer").innerHTML = galleryTop + buttonHTML() + galleryBottom;
+            }
+
+            // Returns the html for the buttons in the middle.
+            // The buttons have an onclick function (or multiple functions) set.
+            // Big red X button runs the noneOfTheAbove() function.
+            // The Green check button runs several things:  matchingImages(); alert(stringMatching()); initBGM(-1); initMT(); insertImages(); setPrompt();
+            // The Green check functions are needed to collect all the matching Info, share it with the
+            // user, and reset everyting for another round.
+            function buttonHTML(){
+                var leftBtn = '<figure onclick="noneOfTheAbove()" class="gallery__item gallery__item--btnLeft">\n<img id="btnLeft" src="./images/btnX.jpg" class="gallery__img">\n</figure>\n';
+                var midBtn = '<figure class="gallery__item gallery__item--btnMiddle">\n<img id="btnMiddle" src="./images/btnWhite.jpg" class="gallery__img">\n</figure>\n';
+                var rightBtn = '<figure onclick="matchingImages(); alert(stringMatching()); initBGM(-1); initMT(); insertImages(); setPrompt();" class="gallery__item gallery__item--btnRight">\n<img id="btnRight" src="./images/btnCheck.jpg" class="gallery__img">\n</figure>\n';
+
+                return leftBtn + midBtn + rightBtn;
+
+            }
+
+            // This function holds all the possible prompts at the top of the screen and puts a random prompt into the pickPrompt <p> tag.
+            function setPrompt(){
+              let prompts = ["Pick all the people with a blue(ish) background.",
+        "Pick all the people with a green(ish) background."
+        ,"Pick all the people with a brown(ish) background."
+        ,"Pick all the people with long hair."
+        ,"Pick all the people with short hair."
+        ,"Pick all the people with a beard."
+        ,"Pick all the people standing sideways."
+        ,"Pick all the people with curly hair."
+        ,"Pick all the people with straight hair."
+        ,"Pick all the people wearing a button-up shirt."
+       , "Pick all the people with a solid-color shirt."
+        ,"Pick all the people with a patterned shirt."]
+        let selectedPromptIndex = randomNum(0, prompts.length-1);
+        let selectedPrompt = prompts[selectedPromptIndex];
+
+        document.querySelector("#pickPrompt").innerText = selectedPrompt;
+            }
+
+            // This function visually moves an image from the top grid to the bottom grid after selection.
+            // This is done by copying the src from the top element to the next available position in the 
+            // lower grid (nextGalleryPosition();).  Then the src of the top element is set to the btnWhite.jpg file to appear blank.
+            function selectImage(imgNum){
+                var targetPos = nextGalleryPosition();
+                bottomGalleryMemory[targetPos] = imgNum * 1;    // the position in uppper is "remembered"
+                targetPos += gallerySize + 1;   // targetPos is reused to indicate the lower grid pos.
+                document.getElementById("galleryImg" + targetPos).src = document.getElementById("galleryImg" + imgNum).src;
+                document.getElementById("galleryImg" + imgNum).src = "./images/btnWhite.jpg";
+            }
+
+            // This function finds the next open position in the lower grid by searching bottomGalleryMemory
+            // for the first occurance of -1 (the empty indicator).  When found, the function returns the 
+            // position.
+            function nextGalleryPosition(){
+                return bottomGalleryMemory.indexOf(-1,0);
+            }
+
+            // This function visually moves an image from the bottom grid back to the top grid.
+            // The image is moved back to its previous location to feel "smart".
+            // This is done by checking the bottomGalleryMemory for the return location (top grid pos).
+            // We also write -1 back into the position in the bottomGalleryMemory array to make sure
+            // the position is marked as "empty".
+            function returnImage(imgNum){
+                var galleryArrNum = imgNum - (gallerySize + 1); // calculate the lower grid position
+                document.getElementById("galleryImg" + bottomGalleryMemory[galleryArrNum]).src = document.getElementById("galleryImg" + imgNum).src;
+                document.getElementById("galleryImg" + imgNum).src = "./images/btnWhite.jpg";
+                bottomGalleryMemory[galleryArrNum] = -1;    // mark as "empty"
+            }
+
+            // This function saves the locations of the matching images into the matchingThings array.
+            // This is done by comparing each element of the bottomGalleryMemory array for non-empty
+            // elements (ie elements != -1).
+            // Non-empty locations are then probed by their galleryImgXX id for the src location.
+            // Locations are then copied into the next available matchingThings element.
+            function matchingImages(){
+                var galleryItem = -1;
+                var i = 0;
+                initMT(""); // important to reset the matchingThings array before filling it
+                for(var n = 0; n < gallerySize; n++){
+                    galleryItem = n + gallerySize + 1;  // set the lower gallery location
+                    // only copy from non-empty elements
+                    if(bottomGalleryMemory[n] > -1){
+                        matchingThings[i] = document.getElementById("galleryImg" + galleryItem).src;
+                        i++;    // counter for the matchingThings array (different than for the bGM arr)
+                    }
+                }
+            }
+
+            // This function turns the matchingThings array into a single string with each location
+            // on a new line.  Then an intro string is appended at the beginning.
+            // The result is returned.
+            function stringMatching(){
+                var i = 0;
+                var printStr = "";
+                while(matchingThings[i].length > 0){
+                    printStr += matchingThings[i] + "\n";   // append the next location and new line
+                    i++;
+                }
+                printStr = "Great! You found all the items:\n" + printStr;  // add intro string
+                return printStr;    // return the result
+            }
+
+            // This function handles the behavior of the "none found" button.
+            // It alerts that things will be reset, and resets everything.
+            // Resets:  bottomGalleryMemory, matchingThings, inserts/randomized top images, and
+            // sets a random search prompt.
+            function noneOfTheAbove(){
+                alert("Ok, we'll try another one...");
+                initBGM(-1);
+                 initMT();
+                  insertImages();
+                   setPrompt();
+                // reset everything (see above -- Resets...)
+            }
+
+            // This function generates an array with a random order of integers.
+            // It does this by first created an ordered array with all the desired elements.
+            // Then the elements are swapped in pairs from random positions in the array.
+            // After randomly swapping the same number of times as the size of the input number (numImages),
+            // an array is returned with the image numbers in random order.
+            function randomizeImages(numImages){
+                var imgRandomIndexes = new Array(numImages);
+                for(let i = 0; i < imgRandomIndexes.length; i++){
+                    imgRandomIndexes[i] = i+1;
+                }
+
+                var currentIndex = imgRandomIndexes.length, temporaryValue, randomIndex;
+
+                // While there remain elements to shuffle...
+                while (0 !== currentIndex) {
+
+                    // Pick a remaining element...
+                    randomIndex = randomNum(0,currentIndex);
+                    currentIndex -= 1;
+
+                    // And swap it with the current element.
+                    temporaryValue = imgRandomIndexes[currentIndex];
+                    imgRandomIndexes[currentIndex] = imgRandomIndexes[randomIndex];
+                    imgRandomIndexes[randomIndex] = temporaryValue;
+                }
+                return imgRandomIndexes;
+            }
+
+            // A function to simplify the process of random number generation in a range [min, max].
+            function randomNum(min, max){
+                return Math.floor(Math.random() * (max - min +1)) + min;
+            }
+
+        </script>
+    </body>
+</html>
